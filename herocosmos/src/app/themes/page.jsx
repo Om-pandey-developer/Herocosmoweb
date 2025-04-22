@@ -23,23 +23,47 @@ const themes = [
     bannerImage: '/assets/themes/anime/465a60bd329a3fd6d686160e88731c75.jpg',
   },
   {
-    name: 'Classic Comics',
-    slug: 'classic-comics',
-    description: 'Celebrate the timeless heroes of classic comics',
-    bannerImage: '/assets/themes/classic-comics/banner.jpg',
-  },
-  {
-    name: 'Sci-Fi & Fantasy',
-    slug: 'scifi-fantasy',
-    description: 'Journey through epic sci-fi and fantasy universes',
-    bannerImage: '/assets/themes/scifi-fantasy/banner.jpg',
-  },
-  {
     name: 'Video Game Characters',
     slug: 'video-games',
     description: 'Wear your favorite video game heroes with pride',
-    bannerImage: '/assets/themes/video-games/banner.jpg',
+    bannerImage: '/assets/themes/video games character/videogames character.jpg',
   },
+  {
+    name: 'Classic Comics',
+    slug: 'classic-comics',
+    description: 'Celebrate the timeless heroes of classic comics',
+    bannerImage: '/assets/themes/classic comics/classic comic.jpg',
+  },
+  {
+    name: 'Sci-Fi & Fantasy',
+    slug: 'sci-fi-fantasy',
+    description: 'Journey through epic sci-fi and fantasy universes',
+    bannerImage: '/assets/themes/sci-fi & fantasy/sci-fi fantasy.jpg',
+  },
+  {
+    name: 'Oversized',
+    slug: 'oversized',
+    description: 'Comfortable and stylish oversized apparel',
+    bannerImage: '/assets/themes/oversized/oversized.jpg',
+  },
+  {
+    name: 'Graphic Printed',
+    slug: 'graphic-printed',
+    description: 'Bold and artistic graphic designs',
+    bannerImage: '/assets/themes/graphic printed/graphic printed.jpg',
+  },
+  {
+    name: 'Hooded',
+    slug: 'hooded',
+    description: 'Cozy and trendy hooded collection',
+    bannerImage: '/assets/themes/hooded/hoodies.jpg',
+  },
+  {
+    name: 'Long Sleeve',
+    slug: 'long-sleeve',
+    description: 'Elegant and versatile long sleeve designs',
+    bannerImage: '/assets/themes/Long sleeve/long sleeves.jpg',
+  }
 ];
 
 export default function ThemesPage() {

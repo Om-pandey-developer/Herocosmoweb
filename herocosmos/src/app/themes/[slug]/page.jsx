@@ -61,7 +61,97 @@ const themeData = {
       },
     ],
   },
-  // Add more theme data here
+  'video-games': {
+    name: 'Video Game Characters',
+    description: 'Wear your favorite video game heroes with pride',
+    bannerImage: '/assets/themes/video games character/videogames character.jpg',
+    products: [
+      {
+        name: 'Gaming Character T-Shirt',
+        price: 29.99,
+        image: '/assets/themes/video games character/videogames character.jpg',
+        themes: ['Video Games', 'Graphic Printed'],
+      },
+    ],
+  },
+  'classic-comics': {
+    name: 'Classic Comics',
+    description: 'Celebrate the timeless heroes of classic comics',
+    bannerImage: '/assets/themes/classic comics/classic comic.jpg',
+    products: [
+      {
+        name: 'Classic Hero T-Shirt',
+        price: 29.99,
+        image: '/assets/themes/classic comics/classic comic.jpg',
+        themes: ['Classic Comics', 'Graphic Printed'],
+      },
+    ],
+  },
+  'sci-fi-fantasy': {
+    name: 'Sci-Fi & Fantasy',
+    description: 'Journey through epic sci-fi and fantasy universes',
+    bannerImage: '/assets/themes/sci-fi & fantasy/sci-fi fantasy.jpg',
+    products: [
+      {
+        name: 'Sci-Fi Fantasy T-Shirt',
+        price: 29.99,
+        image: '/assets/themes/sci-fi & fantasy/sci-fi fantasy.jpg',
+        themes: ['Sci-Fi & Fantasy', 'Graphic Printed'],
+      },
+    ],
+  },
+  oversized: {
+    name: 'Oversized',
+    description: 'Comfortable and stylish oversized apparel',
+    bannerImage: '/assets/themes/oversized/oversized.jpg',
+    products: [
+      {
+        name: 'Oversized T-Shirt',
+        price: 29.99,
+        image: '/assets/themes/oversized/oversized.jpg',
+        themes: ['Oversized'],
+      },
+    ],
+  },
+  'graphic-printed': {
+    name: 'Graphic Printed',
+    description: 'Bold and artistic graphic designs',
+    bannerImage: '/assets/themes/graphic printed/graphic printed.jpg',
+    products: [
+      {
+        name: 'Graphic Print T-Shirt',
+        price: 29.99,
+        image: '/assets/themes/graphic printed/graphic printed.jpg',
+        themes: ['Graphic Printed'],
+      },
+    ],
+  },
+  hooded: {
+    name: 'Hooded',
+    description: 'Cozy and trendy hooded collection',
+    bannerImage: '/assets/themes/hooded/hoodies.jpg',
+    products: [
+      {
+        name: 'Classic Hoodie',
+        price: 49.99,
+        image: '/assets/themes/hooded/hoodies.jpg',
+        themes: ['Hooded'],
+      },
+    ],
+  },
+  'long-sleeve': {
+    name: 'Long Sleeve',
+    description: 'Elegant and versatile long sleeve designs',
+    bannerImage: '/assets/themes/Long sleeve/long sleeves.jpg',
+    products: [
+      {
+        name: 'Long Sleeve T-Shirt',
+        price: 34.99,
+        image: '/assets/themes/Long sleeve/long sleeves.jpg',
+        themes: ['Long Sleeve'],
+      },
+    ],
+  },
 };
 
 export default function ThemeDetail({ params }) {
