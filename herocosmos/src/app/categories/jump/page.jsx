@@ -8,7 +8,7 @@ export default function CategoriesJumpPage() {
       <JumpingPage
         title="Explore Categories"
         description="Discover our wide range of T-shirt styles and designs. From oversized to hooded, find your perfect fit."
-        image="/assets/categories/banner.jpg"
+        image="/assets/themes/explore categories/explorecategories.jpg"
         link="/categories"
         buttonText="View All Categories"
       />

@@ -8,7 +8,7 @@ export default function CartJumpPage() {
       <JumpingPage
         title="Your Cart"
         description="Review your selected items and proceed to checkout. Your superhero collection awaits!"
-        image="/assets/cart/banner.jpg"
+        image="/assets/cart/cart-banner.jpg"
         link="/cart"
         buttonText="View Cart"
       />

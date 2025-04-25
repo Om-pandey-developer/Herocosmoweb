@@ -7,8 +7,8 @@ export default function FeaturedJumpPage() {
     <Layout>
       <JumpingPage
         title="Featured Collection"
-        description="Discover our most popular and trending superhero designs. Limited edition and exclusive prints available."
-        image="/assets/featured/banner.jpg"
+        description="Discover our handpicked selection of premium superhero merchandise. Exclusive designs and limited editions."
+        image="/assets/featured/featured-banner.jpg"
         link="/featured"
         buttonText="View Featured"
       />
