@@ -1,85 +1,90 @@
-import React from 'react';
-import Layout from '../../components/Layout';
-import ThemeCard from '../../components/ThemeCard';
+'use client';
 
-// Mock data - replace with actual theme data
+import React, { useState } from 'react';
+import Layout from '../../components/Layout';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { FiArrowRight } from 'react-icons/fi';
+
 const themes = [
   {
     name: 'Marvel Universe',
     slug: 'marvel',
-    description: 'Explore the Marvel Cinematic Universe with our exclusive collection',
-    bannerImage: '/assets/themes/marvel/0a1749654c745c6f1deb54780237caaf.jpg',
+    description: 'Explore the Marvel Cinematic Universe with our exclusive collection of Iron Man, Spider-Man, Avengers & more.',
+    bannerImage: '/images/ironman.jpg',
+    color: 'from-red-600/30 to-yellow-600/30',
   },
   {
     name: 'DC Comics',
     slug: 'dc',
-    description: 'Dive into the world of DC Comics with our premium collection',
-    bannerImage: '/assets/themes/dc/512af595d24fb6b9edd55797bc1a0ba4.jpg',
+    description: 'Dive into the world of DC Comics with Batman, Superman, Joker & the Justice League.',
+    bannerImage: '/images/archer.jpg',
+    color: 'from-blue-600/30 to-indigo-600/30',
   },
   {
     name: 'Anime Superheroes',
     slug: 'anime',
-    description: 'Discover our collection inspired by popular anime series',
-    bannerImage: '/assets/themes/anime/465a60bd329a3fd6d686160e88731c75.jpg',
+    description: 'Discover merch inspired by Naruto, Dragon Ball Z, One Punch Man, My Hero Academia & more.',
+    bannerImage: '/images/foxgirl.jpg',
+    color: 'from-orange-600/30 to-pink-600/30',
   },
   {
     name: 'Video Game Characters',
     slug: 'video-games',
-    description: 'Wear your favorite video game heroes with pride',
-    bannerImage: '/assets/themes/video games character/videogames character.jpg',
+    description: 'Wear your favorite video game heroes - Zelda, Cyberpunk, God of War & more.',
+    bannerImage: '/images/magicgirl.jpg',
+    color: 'from-green-600/30 to-cyan-600/30',
   },
-  {
-    name: 'Classic Comics',
-    slug: 'classic-comics',
-    description: 'Celebrate the timeless heroes of classic comics',
-    bannerImage: '/assets/themes/classic comics/classic comic.jpg',
-  },
-  {
-    name: 'Sci-Fi & Fantasy',
-    slug: 'sci-fi-fantasy',
-    description: 'Journey through epic sci-fi and fantasy universes',
-    bannerImage: '/assets/themes/sci-fi & fantasy/sci-fi fantasy.jpg',
-  },
-  {
-    name: 'Oversized',
-    slug: 'oversized',
-    description: 'Comfortable and stylish oversized apparel',
-    bannerImage: '/assets/themes/oversized/oversized.jpg',
-  },
-  {
-    name: 'Graphic Printed',
-    slug: 'graphic-printed',
-    description: 'Bold and artistic graphic designs',
-    bannerImage: '/assets/themes/graphic printed/graphic printed.jpg',
-  },
-  {
-    name: 'Hooded',
-    slug: 'hooded',
-    description: 'Cozy and trendy hooded collection',
-    bannerImage: '/assets/themes/hooded/hoodies.jpg',
-  },
-  {
-    name: 'Long Sleeve',
-    slug: 'long-sleeve',
-    description: 'Elegant and versatile long sleeve designs',
-    bannerImage: '/assets/themes/Long sleeve/long sleeves.jpg',
-  }
 ];
 
 export default function ThemesPage() {
   return (
     <Layout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-4xl font-bold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
-          Explore Our Themes
-        </h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {themes.map((theme) => (
-            <ThemeCard key={theme.slug} theme={theme} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400 mb-3">
+            Explore Our Themes
+          </h1>
+          <p className="text-gray-400">Choose your universe and find your hero</p>
+        </motion.div>
+
+        <div className="space-y-6">
+          {themes.map((theme, index) => (
+            <motion.div
+              key={theme.slug}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.15 }}
+            >
+              <Link
+                href={`/themes/${theme.slug}`}
+                className={`group relative block overflow-hidden rounded-2xl bg-gradient-to-r ${theme.color} border border-purple-500/20 hover:border-purple-500/40 transition-all`}
+              >
+                <div className="flex flex-col md:flex-row items-center">
+                  <div className="md:w-1/3 aspect-[4/3] overflow-hidden">
+                    <img
+                      src={theme.bannerImage}
+                      alt={theme.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="md:w-2/3 p-6 md:p-10">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">{theme.name}</h2>
+                    <p className="text-gray-300 mb-4 max-w-lg">{theme.description}</p>
+                    <span className="inline-flex items-center gap-2 text-purple-400 font-semibold group-hover:gap-4 transition-all">
+                      Explore Collection <FiArrowRight />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>
     </Layout>
   );
-} 
+}
