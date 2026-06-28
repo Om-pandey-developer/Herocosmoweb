@@ -3,25 +3,28 @@ import Link from 'next/link';
 import Layout from '../components/Layout';
 
 const categories = [
-  { name: 'Oversized', image: '/categories/oversized.jpg' },
-  { name: 'Graphic Printed', image: '/categories/graphic.jpg' },
-  { name: 'Hooded', image: '/categories/hooded.jpg' },
-  { name: 'Long Sleeve', image: '/categories/longsleeve.jpg' },
+  { name: 'Oversized', image: '/images/redarmor.jpg' },
+  { name: 'Graphic Printed', image: '/images/lightning.jpg' },
+  { name: 'Hooded', image: '/images/firesword.jpg' },
+  { name: 'Long Sleeve', image: '/images/spacehero.jpg' },
 ];
 
 const themes = [
-  { name: 'Marvel Universe', image: '/assets/themes/marvel/0a1749654c745c6f1deb54780237caaf.jpg' },
-  { name: 'DC Comics', image: '/assets/themes/dc/512af595d24fb6b9edd55797bc1a0ba4.jpg' },
-  { name: 'Anime Superheroes', image: '/assets/themes/anime/465a60bd329a3fd6d686160e88731c75.jpg' },
-  { name: 'Video Game Characters', image: '/assets/themes/games.jpg' },
+  { name: 'Marvel Universe', image: '/images/ironman.jpg' },
+  { name: 'DC Comics', image: '/images/archer.jpg' },
+  { name: 'Anime Superheroes', image: '/images/foxgirl.jpg' },
+  { name: 'Video Game Characters', image: '/images/magicgirl.jpg' },
 ];
 
 export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/50 to-indigo-900/50"></div>
+      <section 
+        className="relative h-[80vh] flex items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/arise.jpg')" }}
+      >
+        <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 text-center">
           <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">
             Superhero Fashion Universe
