@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,6 +12,12 @@ import Chatbot from './Chatbot';
 
 const Layout = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const cartCount = useCartStore((state) => state.getItemCount());
   const wishlistCount = useWishlistStore((state) => state.items.length);
 
@@ -66,7 +72,7 @@ const Layout = ({ children }) => {
             <div className="flex items-center gap-1">
               <Link href="/wishlist" className="relative text-gray-300 hover:text-white p-2 transition-colors">
                 <FiHeart className="w-5 h-5" />
-                {wishlistCount > 0 && (
+                {mounted && wishlistCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {wishlistCount}
                   </span>
@@ -74,7 +80,7 @@ const Layout = ({ children }) => {
               </Link>
               <Link href="/cart" className="relative text-gray-300 hover:text-white p-2 transition-colors">
                 <FiShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
+                {mounted && cartCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 bg-purple-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>

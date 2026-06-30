@@ -48,7 +48,7 @@ export async function POST(request) {
         paymentMethod,
         items: {
           create: items.map(item => ({
-            productId: item.id || 'mock-id',
+            productId: item.id ? String(item.id) : 'mock-id',
             name: item.name,
             price: item.price,
             quantity: item.quantity,
@@ -82,9 +82,39 @@ export async function POST(request) {
       }
     }
 
+    // Email Automation with Nodemailer + Ethereal
+    let emailPreviewUrl = null;
+    try {
+      const nodemailer = (await import('nodemailer')).default;
+      const testAccount = await nodemailer.createTestAccount();
+      const transporter = nodemailer.createTransport({
+        host: testAccount.smtp.host,
+        port: testAccount.smtp.port,
+        secure: testAccount.smtp.secure,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: '"HeroCosmos" <orders@herocosmos.in>',
+        to: user.email,
+        subject: `Order Confirmation - ${order.id}`,
+        text: `Thank you for your heroic order! Your total is ₹${totalAmount}. Your gear is being prepared.`,
+        html: `<h2>Thank you for your heroic order!</h2><p>Your total is <b>₹${totalAmount}</b>.</p><p>Your gear is being prepared in our super-secret lab.</p>`,
+      });
+
+      emailPreviewUrl = nodemailer.getTestMessageUrl(info);
+      console.log("Email Preview URL:", emailPreviewUrl);
+    } catch (emailErr) {
+      console.error("Failed to send confirmation email:", emailErr);
+    }
+
     return NextResponse.json({
       ...order,
-      razorpayOrderId: razorpayOrder?.id || `mock_rzp_order_${Date.now()}`
+      razorpayOrderId: razorpayOrder?.id || `mock_rzp_order_${Date.now()}`,
+      emailPreviewUrl
     }, { status: 201 });
   } catch (error) {
     console.error('Error creating order:', error);

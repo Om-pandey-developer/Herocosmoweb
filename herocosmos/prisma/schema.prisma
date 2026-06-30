@@ -16,12 +16,14 @@ model User {
   image     String?
   isAdmin   Boolean  @default(false)
   heroCoins Int      @default(0)
+  lastLoginAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   addresses Address[]
   orders    Order[]
   wishlist  WishlistItem[]
+  reviews   Review[]
 }
 
 model Address {
@@ -93,4 +95,15 @@ model WishlistItem {
   createdAt DateTime @default(now())
 
   @@unique([userId, productId])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String   // Referencing mock product ID
+  rating    Int      @default(5)
+  comment   String?
+  imageUrl  String?  // For social proof (base64 or URL)
+  createdAt DateTime @default(now())
 }

@@ -37,7 +37,7 @@ const Chatbot = () => {
     }
   }, [messages, isOpen]);
 
-  const handleSend = (text) => {
+  const handleSend = async (text) => {
     if (!text.trim()) return;
 
     // Add user message
@@ -45,12 +45,22 @@ const Chatbot = () => {
     setMessages(prev => [...prev, newUserMsg]);
     setInputText("");
 
-    // Simulate bot thinking and replying
-    setTimeout(() => {
-      const responseText = botResponses[text] || botResponses["default"];
-      const newBotMsg = { id: Date.now() + 1, text: responseText, isBot: true };
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, history: messages })
+      });
+      
+      if (!response.ok) throw new Error('API Error');
+      const data = await response.json();
+      
+      const newBotMsg = { id: Date.now() + 1, text: data.reply, isBot: true };
       setMessages(prev => [...prev, newBotMsg]);
-    }, 600);
+    } catch (error) {
+      const newBotMsg = { id: Date.now() + 1, text: "Oops! My communication link is down. Please try again later.", isBot: true };
+      setMessages(prev => [...prev, newBotMsg]);
+    }
   };
 
   const handleKeyPress = (e) => {

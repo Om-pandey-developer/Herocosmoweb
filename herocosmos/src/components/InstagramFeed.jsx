@@ -12,6 +12,30 @@ const mockPosts = [
 ];
 
 export default function InstagramFeed() {
+  const [posts, setPosts] = React.useState(mockPosts);
+
+  React.useEffect(() => {
+    fetch('/api/reviews?limit=4')
+      .then(res => res.json())
+      .then(data => {
+        if (data.reviews && data.reviews.length > 0) {
+          // Map reviews to match the display format
+          const mappedReviews = data.reviews.map(r => ({
+            id: r.id,
+            image: r.imageUrl,
+            likes: Math.floor(Math.random() * 500) + 50, // Mock likes for UI
+            comments: r.rating, // Show rating as comments icon in this UI
+            handle: `@${r.user?.name?.replace(/\s+/g, '_').toLowerCase() || 'hero_user'}`
+          }));
+          
+          // Pad with mock posts if less than 4 reviews have images
+          const combined = [...mappedReviews, ...mockPosts].slice(0, 4);
+          setPosts(combined);
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+
   return (
     <section className="py-16 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -21,11 +45,11 @@ export default function InstagramFeed() {
             <FiInstagram className="text-purple-400" />
             Join the <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-400">#HeroCosmos</span> Squad
           </h2>
-          <p className="text-gray-400">Tag us on Instagram to get featured and win 500 Hero Coins!</p>
+          <p className="text-gray-400">Tag us on Instagram or upload a photo review to get featured and win 500 Hero Coins!</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {mockPosts.map((post, index) => (
+          {posts.map((post, index) => (
             <motion.div 
               key={post.id}
               initial={{ opacity: 0, y: 20 }}
@@ -36,7 +60,7 @@ export default function InstagramFeed() {
             >
               <img 
                 src={post.image} 
-                alt="Instagram post" 
+                alt="User review" 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
               />
               

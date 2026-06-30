@@ -1,22 +1,48 @@
 'use client';
 
-import React from 'react';
-import { FiTrendingUp, FiDollarSign, FiShoppingBag, FiUsers, FiArrowUpRight } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiTrendingUp, FiDollarSign, FiShoppingBag, FiUsers, FiArrowUpRight, FiAlertCircle } from 'react-icons/fi';
 import { motion } from 'framer-motion';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 
 export default function AdminDashboard() {
-  const stats = [
-    { title: 'Total Revenue', value: '₹1,24,500', change: '+12.5%', isUp: true, icon: FiDollarSign, color: 'text-green-400', bg: 'bg-green-400/10' },
-    { title: 'Total Orders', value: '342', change: '+8.2%', isUp: true, icon: FiShoppingBag, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-    { title: 'Active Users', value: '1,420', change: '+24.1%', isUp: true, icon: FiUsers, color: 'text-purple-400', bg: 'bg-purple-400/10' },
-    { title: 'Conversion Rate', value: '3.2%', change: '-1.4%', isUp: false, icon: FiTrendingUp, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
-  ];
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const recentOrders = [
-    { id: '#HC-2024-89', customer: 'Rahul Sharma', product: 'Iron Man Arc Reactor Tee', total: '₹1,499', status: 'Processing' },
-    { id: '#HC-2024-88', customer: 'Priya Patel', product: 'Batman Dark Knight Hoodie', total: '₹2,999', status: 'Shipped' },
-    { id: '#HC-2024-87', customer: 'Amit Kumar', product: 'Naruto Sage Mode Tee', total: '₹1,299', status: 'Delivered' },
-    { id: '#HC-2024-86', customer: 'Neha Singh', product: 'Spider-Man Web Slinger', total: '₹1,499', status: 'Delivered' },
+  useEffect(() => {
+    fetch('/api/admin/stats')
+      .then(res => res.json())
+      .then(d => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return <div className="text-white text-center py-20 animate-pulse">Loading dashboard...</div>;
+  }
+
+  if (!data || data.error) {
+    return <div className="text-red-400 text-center py-20">Error loading dashboard stats or unauthorized.</div>;
+  }
+
+  const stats = [
+    { title: 'Total Revenue', value: `₹${data.stats.totalRevenue.toLocaleString()}`, change: '+12.5%', isUp: true, icon: FiDollarSign, color: 'text-green-400', bg: 'bg-green-400/10' },
+    { title: 'Total Orders', value: data.stats.totalOrders, change: '+8.2%', isUp: true, icon: FiShoppingBag, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+    { title: 'Active Users', value: data.stats.totalUsers, change: '+24.1%', isUp: true, icon: FiUsers, color: 'text-purple-400', bg: 'bg-purple-400/10' },
+    { title: 'Conversion Rate', value: '3.2%', change: '-1.4%', isUp: false, icon: FiTrendingUp, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
   ];
 
   return (
@@ -29,7 +55,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-gray-900 border border-gray-800 rounded-2xl p-6"
+            className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-lg shadow-black/50"
           >
             <div className="flex items-center justify-between mb-4">
               <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
@@ -46,65 +72,49 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Orders */}
+        {/* Revenue Chart */}
         <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-white">Recent Orders</h3>
-            <button className="text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors">
-              View All
-            </button>
+            <h3 className="text-lg font-bold text-white">Revenue (Last 7 Days)</h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-left text-gray-400 text-sm border-b border-gray-800">
-                  <th className="pb-4 font-medium">Order ID</th>
-                  <th className="pb-4 font-medium">Customer</th>
-                  <th className="pb-4 font-medium">Product</th>
-                  <th className="pb-4 font-medium">Total</th>
-                  <th className="pb-4 font-medium text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {recentOrders.map((order) => (
-                  <tr key={order.id} className="text-sm">
-                    <td className="py-4 font-medium text-white">{order.id}</td>
-                    <td className="py-4 text-gray-300">{order.customer}</td>
-                    <td className="py-4 text-gray-300 truncate max-w-[200px]">{order.product}</td>
-                    <td className="py-4 text-gray-300">{order.total}</td>
-                    <td className="py-4 text-right">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        order.status === 'Delivered' ? 'bg-green-400/10 text-green-400' :
-                        order.status === 'Shipped' ? 'bg-blue-400/10 text-blue-400' :
-                        'bg-yellow-400/10 text-yellow-400'
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.revenueData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <XAxis dataKey="date" stroke="#888" fontSize={12} tickMargin={10} />
+                <YAxis stroke="#888" fontSize={12} tickFormatter={(value) => `₹${value}`} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#111', border: '1px solid #333', borderRadius: '8px' }}
+                  itemStyle={{ color: '#c084fc' }}
+                />
+                <Line type="monotone" dataKey="revenue" stroke="#c084fc" strokeWidth={3} dot={{ fill: '#c084fc', r: 4 }} activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Top Products */}
+        {/* Low Stock Alerts */}
         <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <h3 className="text-lg font-bold text-white mb-6">Top Products</h3>
-          <div className="space-y-6">
-            {[
-              { name: 'Iron Man Arc Reactor Tee', sales: '124', rev: '₹1.8L' },
-              { name: 'Batman Dark Knight Hoodie', sales: '98', rev: '₹2.9L' },
-              { name: 'Naruto Sage Mode', sales: '85', rev: '₹1.1L' },
-            ].map((p, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-white font-medium text-sm mb-1">{p.name}</h4>
-                  <p className="text-xs text-gray-500">{p.sales} sales</p>
+          <div className="flex items-center gap-2 mb-6">
+            <FiAlertCircle className="w-5 h-5 text-red-400" />
+            <h3 className="text-lg font-bold text-white">Low Stock Alerts</h3>
+          </div>
+          <div className="space-y-4">
+            {data.lowStockItems && data.lowStockItems.length > 0 ? (
+              data.lowStockItems.map((item) => (
+                <div key={item.id} className="flex flex-col gap-1 p-3 bg-red-900/10 border border-red-500/20 rounded-lg">
+                  <h4 className="text-white font-medium text-sm">{item.name}</h4>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-400">ID: {item.id.slice(0, 8)}...</span>
+                    <span className="text-red-400 font-bold bg-red-500/20 px-2 py-0.5 rounded-full">
+                      {item.stock} left
+                    </span>
+                  </div>
                 </div>
-                <span className="text-purple-400 font-bold text-sm">{p.rev}</span>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm text-center py-8">All items are well stocked!</p>
+            )}
           </div>
         </div>
       </div>

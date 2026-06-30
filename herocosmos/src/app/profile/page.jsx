@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import { FiUser, FiPackage, FiHeart, FiMapPin, FiLogOut, FiEdit2, FiChevronRight, FiStar, FiAward } from 'react-icons/fi';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import useLoyaltyStore from '../../store/loyaltyStore';
+import useLoyaltyStore, { calculateTier } from '../../store/loyaltyStore';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 
 const mockUser = {
@@ -77,7 +77,8 @@ export default function ProfilePage() {
   }, [session]);
 
   const userToDisplay = session?.user || mockUser;
-
+  const currentCoins = userToDisplay.heroCoins || coins;
+  const currentTier = calculateTier(currentCoins);
   const tabs = [
     { id: 'orders', label: 'My Orders', icon: FiPackage },
     { id: 'addresses', label: 'Addresses', icon: FiMapPin },
@@ -118,7 +119,12 @@ export default function ProfilePage() {
               <div className="text-center md:text-left flex-1">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
-                    <h1 className="text-3xl font-bold text-white mb-1">{userToDisplay.name}</h1>
+                    <h1 className="text-3xl font-bold text-white mb-1">
+                      {userToDisplay.name}
+                      <span className="ml-3 text-sm px-3 py-1 bg-purple-600/30 text-purple-300 border border-purple-500/50 rounded-full align-middle font-semibold shadow-[0_0_10px_rgba(168,85,247,0.4)]">
+                        {currentTier}
+                      </span>
+                    </h1>
                     <p className="text-gray-400">{userToDisplay.email}</p>
                   </div>
                   <button onClick={() => signOut()} className="flex items-center justify-center gap-2 px-6 py-2 bg-white/10 hover:bg-red-500/20 text-gray-300 hover:text-red-400 rounded-full transition-colors border border-white/10 hover:border-red-500/30">
@@ -132,8 +138,25 @@ export default function ProfilePage() {
               {/* Hero Coins Banner */}
               <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/20 rounded-xl p-3 mb-6 text-center mt-6">
                 <p className="text-gray-400 text-xs">Hero Coins Balance</p>
-                <p className="text-2xl font-bold text-white">🪙 {userToDisplay.heroCoins || coins}</p>
-                <p className="text-purple-400 text-[10px]">= ₹{userToDisplay.heroCoins || coins} off next order</p>
+                <p className="text-2xl font-bold text-white">🪙 {currentCoins}</p>
+                <p className="text-purple-400 text-[10px]">= ₹{currentCoins} off next order</p>
+                
+                <div className="mt-3 pt-3 border-t border-purple-500/20 text-left">
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-400">Current Tier:</span>
+                    <span className="text-white font-bold">{currentTier}</span>
+                  </div>
+                  {currentTier !== 'Avenger' && (
+                    <div className="w-full bg-black/50 rounded-full h-1.5 mt-2">
+                      <div className="bg-purple-500 h-1.5 rounded-full" style={{ width: `${(currentCoins % (currentTier === 'Sidekick' ? 1000 : 5000)) / (currentTier === 'Sidekick' ? 10 : 50)}%` }}></div>
+                    </div>
+                  )}
+                  {currentTier !== 'Avenger' && (
+                    <p className="text-[9px] text-gray-500 mt-1 text-center">
+                      {currentTier === 'Sidekick' ? 1000 - currentCoins : 5000 - currentCoins} more coins to reach {currentTier === 'Sidekick' ? 'Hero' : 'Avenger'}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Nav Tabs */}

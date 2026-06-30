@@ -16,7 +16,7 @@ const mockReviews = [
     text: 'The fabric is super soft and the print quality is amazing. Worn it 3 times already and washed twice — no fading at all. True to size, ordered L and it fits perfectly.',
     helpful: 24,
     verified: true,
-    images: ['/images/ironman.jpg'],
+    images: ['https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80'],
   },
   {
     id: 2,

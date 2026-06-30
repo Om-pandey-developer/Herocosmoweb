@@ -35,5 +35,10 @@ const useLoyaltyStore = create(
     }
   )
 );
+export const calculateTier = (coins) => {
+  if (coins >= 5000) return 'Avenger';
+  if (coins >= 1000) return 'Hero';
+  return 'Sidekick';
+};
 
 export default useLoyaltyStore;

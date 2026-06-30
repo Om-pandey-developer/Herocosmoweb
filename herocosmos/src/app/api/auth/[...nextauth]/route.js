@@ -30,12 +30,36 @@ export const authOptions = {
           return null;
         }
 
+        // Gamification: Daily login bonus
+        const now = new Date();
+        const lastLogin = user.lastLoginAt ? new Date(user.lastLoginAt) : null;
+        let coinsToAdd = 0;
+
+        const isNewDay = !lastLogin || 
+          lastLogin.getUTCFullYear() !== now.getUTCFullYear() ||
+          lastLogin.getUTCMonth() !== now.getUTCMonth() ||
+          lastLogin.getUTCDate() !== now.getUTCDate();
+
+        if (isNewDay) {
+          coinsToAdd = 5;
+        }
+
+        const updatedUser = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            lastLoginAt: now,
+            heroCoins: {
+              increment: coinsToAdd
+            }
+          }
+        });
+
         return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          isAdmin: user.isAdmin,
-          heroCoins: user.heroCoins
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          isAdmin: updatedUser.isAdmin,
+          heroCoins: updatedUser.heroCoins
         };
       }
     })
