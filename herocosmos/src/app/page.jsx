@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import QuickViewModal from '../components/QuickViewModal';
+import InstagramFeed from '../components/InstagramFeed';
 import { getBestsellers, getNewArrivals, getTrendingProducts } from '../data/products';
 import { motion } from 'framer-motion';
 import { FiArrowRight, FiZap, FiStar, FiTrendingUp } from 'react-icons/fi';
@@ -282,6 +283,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Instagram Feed */}
+      <InstagramFeed />
 
       {/* CTA Banner */}
       <section className="py-16 px-4">

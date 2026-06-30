@@ -20,24 +20,45 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      email: form.email,
-      password: form.password,
-    });
+    try {
+      if (!isLogin) {
+        // Register flow
+        const regRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: form.name, email: form.email, password: form.password })
+        });
+        
+        if (!regRes.ok) {
+          const errorData = await regRes.json();
+          throw new Error(errorData.error || 'Registration failed');
+        }
+      }
 
-    setLoading(false);
-
-    if (result.error) {
-      toast.error('Invalid credentials or sign up failed', {
-        style: { background: '#1a1a2e', color: '#fff', border: '1px solid rgba(168,85,247,0.3)' },
+      // Login flow (runs after register, or directly if isLogin)
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: form.email,
+        password: form.password,
       });
-    } else {
+
+      setLoading(false);
+
+      if (result.error) {
+        throw new Error('Invalid credentials');
+      }
+
       toast.success(isLogin ? 'Welcome back, Hero! 🦸' : 'Account created! Welcome to HeroCosmos! 🚀', {
         style: { background: '#1a1a2e', color: '#fff', border: '1px solid rgba(168,85,247,0.3)' },
       });
       router.push('/profile');
+    } catch (err) {
+      setLoading(false);
+      toast.error(err.message || 'Something went wrong', {
+        style: { background: '#1a1a2e', color: '#fff', border: '1px solid rgba(168,85,247,0.3)' },
+      });
     }
+
   };
 
   return (

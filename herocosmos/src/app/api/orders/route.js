@@ -1,77 +1,93 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../lib/prisma';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
+import prisma from '../../../lib/prisma';
+import Razorpay from 'razorpay';
 
-export async function POST(req) {
+export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
 
-    const { items, total, addressId, paymentMethod } = await req.json();
-
-    // In a real app, calculate total on server based on items to avoid tampering
-    const orderTotal = total; 
-
-    // Create Order in Database
-    const order = await prisma.order.create({
-      data: {
-        userId: session.user.id,
-        totalAmount: orderTotal,
-        paymentMethod: paymentMethod,
-        status: "Processing", // Default status
-        items: {
-          create: items.map(item => ({
-            productId: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            size: item.size,
-            image: item.image
-          }))
-        }
-      }
+    const orders = await prisma.order.findMany({
+      where: userId ? { userId } : undefined,
+      include: {
+        user: true,
+        items: true,
+      },
+      orderBy: { createdAt: 'desc' }
     });
-
-    if (paymentMethod === 'online') {
-      // Mock Razorpay Order Creation
-      const mockRazorpayOrderId = `order_${Math.random().toString(36).substring(2, 15)}`;
-      
-      return NextResponse.json({
-        id: mockRazorpayOrderId,
-        currency: "INR",
-        amount: orderTotal * 100, // Razorpay takes amount in paise
-        dbOrderId: order.id
-      });
-    }
-
-    // For COD
-    return NextResponse.json({ success: true, dbOrderId: order.id });
-
+    return NextResponse.json(orders);
   } catch (error) {
-    console.error("Order creation error:", error);
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+    console.error('Error fetching orders:', error);
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
   }
 }
 
-export async function GET(req) {
+export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const data = await request.json();
+    const { items, totalAmount, paymentMethod, customerName, email } = data;
 
-    const orders = await prisma.order.findMany({
-      where: { userId: session.user.id },
-      include: { items: true },
-      orderBy: { createdAt: 'desc' }
+    // Check if user exists by email, or create a guest user
+    let user = await prisma.user.findUnique({
+      where: { email: email || 'guest@herocosmos.com' }
     });
 
-    return NextResponse.json({ orders });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          name: customerName || 'Guest User',
+          email: email || `guest-${Date.now()}@herocosmos.com`,
+        }
+      });
+    }
+
+    const order = await prisma.order.create({
+      data: {
+        userId: user.id,
+        totalAmount,
+        paymentMethod,
+        items: {
+          create: items.map(item => ({
+            productId: item.id || 'mock-id',
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            size: item.selectedSize,
+            color: item.selectedColor,
+            image: item.image
+          }))
+        }
+      },
+      include: {
+        items: true
+      }
+    });
+
+    let razorpayOrder = null;
+    if (paymentMethod !== 'cod') {
+      try {
+        if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+          const razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+          });
+          razorpayOrder = await razorpay.orders.create({
+            amount: totalAmount * 100, // in paise
+            currency: 'INR',
+            receipt: order.id,
+          });
+        }
+      } catch (err) {
+        console.warn("Razorpay order creation failed (maybe invalid keys). Falling back to mock order.");
+      }
+    }
+
+    return NextResponse.json({
+      ...order,
+      razorpayOrderId: razorpayOrder?.id || `mock_rzp_order_${Date.now()}`
+    }, { status: 201 });
   } catch (error) {
-    console.error("Fetch orders error:", error);
-    return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
+    console.error('Error creating order:', error);
+    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
   }
 }

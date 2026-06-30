@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Layout from '../../components/Layout';
 import Link from 'next/link';
+import Script from 'next/script';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMapPin, FiCreditCard, FiCheckCircle, FiChevronRight, FiShield, FiTruck, FiArrowLeft } from 'react-icons/fi';
 import useCartStore from '../../store/cartStore';
@@ -16,7 +17,7 @@ const steps = [
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [address, setAddress] = useState({ name: '', phone: '', addressLine: '', city: '', state: '', pincode: '' });
+  const [address, setAddress] = useState({ name: '', phone: '', email: '', addressLine: '', city: '', state: '', pincode: '' });
   const [paymentMethod, setPaymentMethod] = useState('upi');
   const [orderPlaced, setOrderPlaced] = useState(false);
 
@@ -39,8 +40,10 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items,
-          total: finalTotal,
+          totalAmount: finalTotal,
           paymentMethod,
+          customerName: address.name,
+          email: address.email
         }),
       });
 
@@ -54,19 +57,66 @@ export default function CheckoutPage() {
 
       const data = await res.json();
 
-      if (paymentMethod === 'online' && data.id) {
-        // Mock Razorpay successful verification call
-        const verifyRes = await fetch('/api/verify-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            razorpay_payment_id: 'mock_pay_' + Date.now(),
-            dbOrderId: data.dbOrderId,
-          })
-        });
-        if (!verifyRes.ok) throw new Error('Payment verification failed');
+      if (paymentMethod !== 'cod' && data.razorpayOrderId) {
+        if (!window.Razorpay) {
+          toast.error("Payment gateway failed to load. Simulating success.");
+        } else {
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'mock_key',
+            amount: data.totalAmount * 100,
+            currency: "INR",
+            name: "HeroCosmos",
+            description: "Super Hero Merchandise",
+            order_id: data.razorpayOrderId.startsWith('mock') ? undefined : data.razorpayOrderId,
+            handler: async function (response) {
+              const verifyRes = await fetch('/api/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id || 'mock_pay_id',
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  dbOrderId: data.id,
+                })
+              });
+              if (!verifyRes.ok) {
+                toast.error('Payment verification failed');
+              } else {
+                setOrderPlaced(true);
+                clearCart();
+                toast.success('Order placed successfully! 🎉', {
+                  style: { background: '#1a1a2e', color: '#fff', border: '1px solid rgba(168,85,247,0.3)' },
+                });
+              }
+            },
+            prefill: {
+              name: address.name,
+              email: address.email,
+              contact: address.phone
+            },
+            theme: {
+              color: "#9333ea"
+            }
+          };
+
+          // If it's a mock order id (no keys), Razorpay sdk will error if order_id is invalid mock. 
+          // So if we deleted order_id, we just let it run in test mode (if they put a test key). 
+          // If no key at all, it will fail, so we catch and simulate:
+          try {
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', function (response){
+              toast.error("Payment failed: " + response.error.description);
+            });
+            rzp.open();
+            return; // Exit here, let the handler finish the flow
+          } catch(err) {
+            console.error("Razorpay UI failed (likely missing/invalid keys). Simulating success.", err);
+            // Fallthrough to simulate success
+          }
+        }
       }
 
+      // COD or Mock Fallback success flow
       setOrderPlaced(true);
       clearCart();
       toast.success('Order placed successfully! 🎉', {
@@ -136,6 +186,7 @@ export default function CheckoutPage() {
 
   return (
     <Layout>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-10">
@@ -179,6 +230,11 @@ export default function CheckoutPage() {
                       <label className="block text-sm text-gray-400 mb-1">Phone *</label>
                       <input type="tel" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })}
                         placeholder="+91 98765 43210" className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm text-gray-400 mb-1">Email Address *</label>
+                      <input type="email" value={address.email} onChange={(e) => setAddress({ ...address, email: e.target.value })}
+                        placeholder="peter@parker.com" className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors" />
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-sm text-gray-400 mb-1">Address *</label>

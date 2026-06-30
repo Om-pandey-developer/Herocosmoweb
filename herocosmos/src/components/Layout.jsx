@@ -8,6 +8,7 @@ import { FiShoppingCart, FiHeart, FiMenu, FiX, FiSun, FiMoon, FiUser } from 'rea
 import SearchBar from './SearchBar';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
+import Chatbot from './Chatbot';
 
 const Layout = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -214,6 +215,7 @@ const Layout = ({ children }) => {
           </div>
         </div>
       </footer>
+      <Chatbot />
     </div>
   );
 };

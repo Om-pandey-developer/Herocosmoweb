@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FiUser, FiPackage, FiHeart, FiMapPin, FiLogOut, FiEdit2, FiChevronRight, FiStar, FiAward } from 'react-icons/fi';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import useLoyaltyStore from '../../store/loyaltyStore';
+import { FiCopy, FiCheck } from 'react-icons/fi';
 
 const mockUser = {
   name: 'Guest Hero',
@@ -51,6 +52,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const { coins, history } = useLoyaltyStore();
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -59,8 +62,8 @@ export default function ProfilePage() {
   }, [status, router]);
 
   useEffect(() => {
-    if (session) {
-      fetch('/api/orders')
+    if (session?.user?.id) {
+      fetch(`/api/orders?userId=${session.user.id}`)
         .then(res => res.json())
         .then(data => {
           if (data.orders) setOrders(data.orders);
@@ -79,6 +82,7 @@ export default function ProfilePage() {
     { id: 'orders', label: 'My Orders', icon: FiPackage },
     { id: 'addresses', label: 'Addresses', icon: FiMapPin },
     { id: 'rewards', label: 'Hero Coins', icon: FiAward },
+    { id: 'referrals', label: 'Refer & Earn', icon: FiHeart },
     { id: 'settings', label: 'Account', icon: FiUser },
   ];
 
@@ -128,8 +132,8 @@ export default function ProfilePage() {
               {/* Hero Coins Banner */}
               <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/20 rounded-xl p-3 mb-6 text-center mt-6">
                 <p className="text-gray-400 text-xs">Hero Coins Balance</p>
-                <p className="text-2xl font-bold text-white">🪙 {mockUser.heroCoins}</p>
-                <p className="text-purple-400 text-[10px]">= ₹{mockUser.heroCoins} off next order</p>
+                <p className="text-2xl font-bold text-white">🪙 {userToDisplay.heroCoins || coins}</p>
+                <p className="text-purple-400 text-[10px]">= ₹{userToDisplay.heroCoins || coins} off next order</p>
               </div>
 
               {/* Nav Tabs */}
@@ -263,8 +267,8 @@ export default function ProfilePage() {
 
                   <div className="bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/20 rounded-2xl p-8 text-center mb-8">
                     <p className="text-gray-400 text-sm">Your Balance</p>
-                    <p className="text-5xl font-bold text-white my-3">🪙 {mockUser.heroCoins}</p>
-                    <p className="text-purple-400">Worth ₹{mockUser.heroCoins} off your next order</p>
+                    <p className="text-5xl font-bold text-white my-3">🪙 {userToDisplay.heroCoins || coins}</p>
+                    <p className="text-purple-400">Worth ₹{userToDisplay.heroCoins || coins} off your next order</p>
                   </div>
 
                   <h2 className="text-lg font-bold text-white mb-4">How to Earn</h2>
@@ -287,21 +291,59 @@ export default function ProfilePage() {
 
                   <h2 className="text-lg font-bold text-white mb-4">Transaction History</h2>
                   <div className="bg-black/30 border border-purple-500/20 rounded-xl overflow-hidden">
-                    {[
-                      { type: 'earned', desc: 'Purchase: HC-20240615-001', coins: '+38', date: '15 Jun 2024' },
-                      { type: 'earned', desc: 'Review: Iron Man Tee', coins: '+50', date: '18 Jun 2024' },
-                      { type: 'earned', desc: 'Purchase: HC-20240628-002', coins: '+15', date: '28 Jun 2024' },
-                    ].map((txn, i) => (
+                    {history.map((txn, i) => (
                       <div key={i} className="flex items-center justify-between p-4 border-b border-gray-800 last:border-0">
                         <div>
-                          <p className="text-white text-sm">{txn.desc}</p>
-                          <p className="text-gray-500 text-xs">{txn.date}</p>
+                          <p className="text-white text-sm">{txn.description}</p>
+                          <p className="text-gray-500 text-xs">{new Date(txn.date).toLocaleDateString()}</p>
                         </div>
-                        <span className={`font-bold text-sm ${txn.type === 'earned' ? 'text-green-400' : 'text-red-400'}`}>
-                          {txn.coins}
+                        <span className={`font-bold text-sm ${txn.type === 'EARNED' ? 'text-green-400' : 'text-red-400'}`}>
+                          {txn.type === 'EARNED' ? '+' : '-'}{txn.amount}
                         </span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Referrals Tab */}
+              {activeTab === 'referrals' && (
+                <div>
+                  <h1 className="text-2xl font-bold text-white mb-6">Refer & Earn</h1>
+                  
+                  <div className="bg-gradient-to-br from-purple-900/50 to-blue-900/50 border border-purple-500/30 rounded-2xl p-8 mb-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-20">
+                      <FiHeart className="w-32 h-32 text-purple-300" />
+                    </div>
+                    <div className="relative z-10">
+                      <h2 className="text-3xl font-bold text-white mb-2">Give ₹100, Get ₹100</h2>
+                      <p className="text-gray-300 mb-6 max-w-md">
+                        Invite your friends to HeroCosmos. They get ₹100 off their first order, and you get 100 Hero Coins (₹100) when they complete their purchase!
+                      </p>
+                      
+                      <div className="bg-black/40 rounded-xl p-4 flex items-center justify-between border border-white/10 max-w-md">
+                        <span className="text-purple-300 font-mono text-lg tracking-wide">
+                          HERO-{userToDisplay.name.replace(/\s+/g, '').toUpperCase()}-2024
+                        </span>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(`HERO-${userToDisplay.name.replace(/\s+/g, '').toUpperCase()}-2024`);
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }}
+                          className="bg-purple-600 hover:bg-purple-500 text-white p-2 rounded-lg transition-colors flex items-center gap-2"
+                        >
+                          {copied ? <FiCheck /> : <FiCopy />}
+                          <span className="text-sm font-medium">{copied ? 'Copied' : 'Copy'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 className="text-xl font-bold text-white mb-4">Your Referrals</h3>
+                  <div className="bg-black/30 border border-purple-500/20 rounded-xl p-8 text-center">
+                    <p className="text-gray-400 mb-2">You haven't referred any friends yet.</p>
+                    <p className="text-sm text-purple-400">Share your link and start earning!</p>
                   </div>
                 </div>
               )}
@@ -314,11 +356,11 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Full Name</label>
-                        <input type="text" defaultValue={mockUser.name} className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors" />
+                        <input type="text" defaultValue={userToDisplay.name} className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors" />
                       </div>
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Email</label>
-                        <input type="email" defaultValue={mockUser.email} className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors" />
+                        <input type="email" defaultValue={userToDisplay.email} className="w-full bg-white/5 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500 transition-colors" />
                       </div>
                       <div>
                         <label className="block text-sm text-gray-400 mb-1">Phone</label>

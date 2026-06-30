@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FiHeart, FiEye, FiShoppingCart } from 'react-icons/fi';
 import useCartStore from '../store/cartStore';
@@ -62,10 +63,12 @@ const ProductCard = ({ product, onQuickView }) => {
           {!imageLoaded && (
             <div className="absolute inset-0 bg-gray-800 animate-pulse" />
           )}
-          <img
+          <Image
             src={product.image}
             alt={product.name}
-            className={`h-full w-full object-cover group-hover:scale-110 transition-transform duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            fill
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+            className={`object-cover group-hover:scale-110 transition-transform duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setImageLoaded(true)}
           />
 
