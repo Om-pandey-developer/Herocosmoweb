@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma'; // Assumes lib/prisma.js exists
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function GET(request) {
   try {
@@ -24,6 +26,11 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user.isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const data = await request.json();
     
     // Convert arrays to JSON strings for SQLite schema

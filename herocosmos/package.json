@@ -32,6 +32,7 @@
     "@eslint/eslintrc": "^3",
     "@prisma/config": "^7.8.0",
     "@tailwindcss/postcss": "^4",
+    "@types/node": "^26.0.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",

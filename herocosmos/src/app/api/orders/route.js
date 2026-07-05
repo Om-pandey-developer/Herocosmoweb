@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 import prisma from '../../../lib/prisma';
 import Razorpay from 'razorpay';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function GET(request) {
   try {
+    const session = await getServerSession(authOptions);
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
+
+    // Security check: Must be logged in, and can only view own orders unless admin
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!session.user.isAdmin && (!userId || session.user.id !== userId)) {
+      return NextResponse.json({ error: 'Forbidden: Cannot access other users orders' }, { status: 403 });
+    }
 
     const orders = await prisma.order.findMany({
       where: userId ? { userId } : undefined,
@@ -24,19 +35,23 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const session = await getServerSession(authOptions);
     const data = await request.json();
     const { items, totalAmount, paymentMethod, customerName, email } = data;
 
+    const finalEmail = session?.user?.email || email || 'guest@herocosmos.com';
+    const finalName = session?.user?.name || customerName || 'Guest User';
+
     // Check if user exists by email, or create a guest user
     let user = await prisma.user.findUnique({
-      where: { email: email || 'guest@herocosmos.com' }
+      where: { email: finalEmail }
     });
 
     if (!user) {
       user = await prisma.user.create({
         data: {
-          name: customerName || 'Guest User',
-          email: email || `guest-${Date.now()}@herocosmos.com`,
+          name: finalName,
+          email: finalEmail === 'guest@herocosmos.com' ? `guest-${Date.now()}@herocosmos.com` : finalEmail,
         }
       });
     }
