@@ -75,27 +75,29 @@ Whether you're shopping for high-end superhero apparel, limited-edition action f
 ## 📂 Project Structure
 
 ```
-herocosmos/
-├── prisma/
-│   ├── schema.prisma       # Database models (User, Product, Order, Address, etc.)
-│   └── seed.js             # Initial database seed data
-├── public/                 # Static assets, 3D models (.glb/.gltf), and images
-├── src/
-│   ├── app/                # Next.js 15 App Router Pages & API Routes
-│   │   ├── admin/          # Admin Dashboard & Analytics
-│   │   ├── api/            # REST API endpoints (auth, checkout, razorpay)
-│   │   ├── auth/           # Login & Registration pages
-│   │   ├── cart/           # Shopping Cart page
-│   │   ├── checkout/       # Checkout & Payment page
-│   │   ├── products/       # Dynamic Product detail & 3D view pages
-│   │   ├── profile/        # User dashboard, orders & address management
-│   │   └── shop/           # Catalog browsing & filtering
-│   ├── components/         # Reusable UI Components (Navbar, 3D Canvas, ProductCard, etc.)
-│   ├── data/               # Product mock data & constant configurations
-│   ├── lib/                # Utility helpers (Prisma client, Razorpay helper)
-│   └── store/              # Zustand state stores (useCartStore, useWishlistStore)
-├── package.json            # Node.js dependencies & project scripts
-└── tailwind.config.js      # Styling design system
+Herocosmoweb/
+├── herocosmos/
+│   ├── prisma/
+│   │   ├── schema.prisma       # Database models (User, Product, Order, Address, etc.)
+│   │   └── seed.js             # Initial database seed data
+│   ├── public/                 # Static assets, 3D models (.glb/.gltf), and images
+│   ├── src/
+│   │   ├── app/                # Next.js 15 App Router Pages & API Routes
+│   │   │   ├── admin/          # Admin Dashboard & Analytics
+│   │   │   ├── api/            # REST API endpoints (auth, checkout, razorpay)
+│   │   │   ├── auth/           # Login & Registration pages
+│   │   │   ├── cart/           # Shopping Cart page
+│   │   │   ├── checkout/       # Checkout & Payment page
+│   │   │   ├── products/       # Dynamic Product detail & 3D view pages
+│   │   │   ├── profile/        # User dashboard, orders & address management
+│   │   │   └── shop/           # Catalog browsing & filtering
+│   │   ├── components/         # Reusable UI Components (Navbar, 3D Canvas, ProductCard, etc.)
+│   │   ├── data/               # Product mock data & constant configurations
+│   │   ├── lib/                # Utility helpers (Prisma client, Razorpay helper)
+│   │   └── store/              # Zustand state stores (useCartStore, useWishlistStore)
+│   ├── package.json            # Node.js dependencies & project scripts
+│   └── tailwind.config.js      # Styling design system
+└── README.md
 ```
 
 ---
@@ -109,13 +111,19 @@ Follow these steps to set up **HeroCosmos** on your local machine:
 - **npm** or **pnpm** or **yarn**
 - **Git**
 
-### 2. Install Dependencies
+### 2. Clone the Repository
+```bash
+git clone https://github.com/Om-pandey-developer/Herocosmoweb.git
+cd Herocosmoweb/herocosmos
+```
+
+### 3. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. Environment Setup
-Create a `.env` file in the root folder (refer to `.env.example`):
+### 4. Environment Setup
+Create a `.env` file in the `herocosmos` root folder (refer to `.env.example`):
 ```env
 # Database Connection
 DATABASE_URL="file:./dev.db"
@@ -136,7 +144,7 @@ EMAIL_SERVER_PASSWORD="your-app-password"
 EMAIL_FROM="HeroCosmos <noreply@herocosmos.com>"
 ```
 
-### 4. Initialize Database & Seed Data
+### 5. Initialize Database & Seed Data
 ```bash
 # Push Prisma schema to local database
 npx prisma db push
@@ -145,11 +153,41 @@ npx prisma db push
 node prisma/seed.js
 ```
 
-### 5. Run Development Server
+### 6. Run Development Server
 ```bash
 npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser to explore HeroCosmos! ⚡
+
+---
+
+## 🗺️ Roadmap & Future Enhancements
+
+- [x] Next.js 15 App Router & Turbopack support
+- [x] 3D Model inspection for premium products
+- [x] Razorpay Payment Gateway integration
+- [x] HeroCoins gamified rewards engine
+- [ ] 🤖 **AI Size & Fit Recommender**: Machine learning recommendation for apparel sizing
+- [ ] 🕶️ **WebAR Augmented Reality**: View 3D collectibles directly in your room using AR
+- [ ] 🌍 **Multi-Language & Multi-Currency Support**: Dynamic localization for global fans
+
+---
+
+## 🤝 Contributing
+
+Contributions are always welcome! If you have suggestions, feature requests, or bug reports:
+
+1. **Fork** the repository
+2. Create your Feature Branch (`git checkout -b feature/CoolSuperheroFeature`)
+3. Commit your changes (`git commit -m 'Add some superhero magic'`)
+4. Push to the Branch (`git push origin feature/CoolSuperheroFeature`)
+5. Open a **Pull Request**
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
@@ -159,3 +197,9 @@ Developed with ❤️ by **[Om Pandey](https://github.com/Om-pandey-developer)**
 
 - 🌐 GitHub: [@Om-pandey-developer](https://github.com/Om-pandey-developer)
 - 🚀 Project Repo: [HeroCosmoWeb](https://github.com/Om-pandey-developer/Herocosmoweb)
+
+---
+
+<div align="center">
+  <sub>Built for heroes across the cosmos. ⚡🌌</sub>
+</div>
